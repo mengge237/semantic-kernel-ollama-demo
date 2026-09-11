@@ -15,5 +15,9 @@ jobs:
           dotnet-version: "9.0.x"
       - name: 还原与构建
         run: |
-          dotnet restore
-          dotnet build --no-restore -c Release
+          # 根目录同时有 .sln 和 .csproj 时 dotnet 会报 MSB1011 不知道选哪个，所以显式挑一个
+          TARGET=$(ls *.sln 2>/dev/null | head -1)
+          if [ -z "$TARGET" ]; then TARGET=$(ls *.csproj 2>/dev/null | head -1); fi
+          echo "构建目标: $TARGET"
+          dotnet restore "$TARGET"
+          dotnet build "$TARGET" --no-restore -c Release
